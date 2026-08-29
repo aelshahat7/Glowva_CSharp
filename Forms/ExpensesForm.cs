@@ -1,0 +1,16 @@
+using GlowvaERP.Helpers;
+using GlowvaERP.Services;
+
+namespace GlowvaERP.Forms;
+
+public sealed class ExpensesForm : Form
+{
+    private readonly DateTimePicker _date=new();private readonly TextBox _category=new();private readonly NumericUpDown _amount=new();private readonly TextBox _notes=new();private readonly DataGridView _grid=new();private readonly Label _total=new();private readonly ExpenseService _service=new();
+    public ExpensesForm(){Text="المصروفات";Size=new Size(950,650);StartPosition=FormStartPosition.CenterParent;RightToLeft=RightToLeft.Yes;BuildUi();LoadRows();}
+    private void BuildUi(){var root=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=3,Padding=new Padding(10),RightToLeft=RightToLeft.Yes};root.RowStyles.Add(new RowStyle(SizeType.Absolute,90));root.RowStyles.Add(new RowStyle(SizeType.Percent,100));root.RowStyles.Add(new RowStyle(SizeType.Absolute,55));var top=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=8,RightToLeft=RightToLeft.Yes};for(int i=0;i<8;i++)top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,12.5f));_date.Format=DateTimePickerFormat.Short;_date.Value=DateTime.Today;_date.Dock=DockStyle.Fill;_category.Dock=DockStyle.Fill;_category.PlaceholderText="نوع المصروف";_amount.DecimalPlaces=2;_amount.Maximum=100000000;_amount.Dock=DockStyle.Fill;_notes.Dock=DockStyle.Fill;_notes.PlaceholderText="ملاحظات";var add=new Button{Text="إضافة",Dock=DockStyle.Fill,BackColor=Color.FromArgb(46,125,50),ForeColor=Color.White};add.Click+=(_,_)=>Add();top.Controls.Add(L("التاريخ"),0,0);top.Controls.Add(_date,1,0);top.Controls.Add(L("النوع"),2,0);top.Controls.Add(_category,3,0);top.Controls.Add(L("القيمة"),4,0);top.Controls.Add(_amount,5,0);top.Controls.Add(add,6,0);top.Controls.Add(L("ملاحظات"),7,0);top.Controls.Add(_notes,7,0);ConfigureGrid();var foot=new Panel{Dock=DockStyle.Fill};_total.Dock=DockStyle.Fill;_total.TextAlign=ContentAlignment.MiddleRight;_total.Font=new Font("Segoe UI",11,FontStyle.Bold);foot.Controls.Add(_total);root.Controls.Add(top,0,0);root.Controls.Add(_grid,0,1);root.Controls.Add(foot,0,2);Controls.Add(root);}
+    private void ConfigureGrid(){ScrollableLayout.ConfigureGrid(_grid,34);_grid.AutoGenerateColumns=false;_grid.Columns.Add(C("التاريخ","Date",150));_grid.Columns.Add(C("النوع","Category",200));_grid.Columns.Add(C("القيمة","Amount",130,"N2"));_grid.Columns.Add(C("ملاحظات","Notes",500));}
+    private static DataGridViewTextBoxColumn C(string h,string p,int w,string? f=null)=>new(){HeaderText=h,DataPropertyName=p,Width=w,DefaultCellStyle=new DataGridViewCellStyle{Format=f??""}};
+    private void Add(){try{_service.Add(_date.Value,_category.Text,_amount.Value,_notes.Text);_category.Clear();_amount.Value=0;_notes.Clear();LoadRows();}catch(Exception ex){MessageBox.Show(this,ex.Message,"المصروفات",MessageBoxButtons.OK,MessageBoxIcon.Error);}}
+    private void LoadRows(){var from=DateTime.Today.AddMonths(-1);var rows=_service.Get(from,DateTime.Today);_grid.DataSource=rows;_total.Text=$"إجمالي آخر شهر: {_service.Total(from,DateTime.Today):N2}";}
+    private static Label L(string t)=>new(){Text=t,Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleRight,Font=new Font("Segoe UI",9,FontStyle.Bold)};
+}
