@@ -139,8 +139,8 @@ public sealed class WorkspaceShellForm : Form
     {
         var panel = new Panel
         {
+            Dock = DockStyle.None,
             Width = 64,
-            Dock = DockStyle.Right,
             BackColor = UiTheme.ChromeGold,
             Padding = new Padding(2, 0, 2, 0),
             Margin = Padding.Empty,
@@ -219,9 +219,7 @@ public sealed class WorkspaceShellForm : Form
 
         _mdiClient.Dock = DockStyle.None;
         _mdiClient.SetBounds(0, top, width, height);
-        _rightRail.Top = top;
-        _rightRail.Height = height;
-        _rightRail.Left = width;
+        _rightRail.SetBounds(width, top, right, height);
         _rightRail.BringToFront();
     }
 
@@ -248,25 +246,24 @@ public sealed class WorkspaceShellForm : Form
         form.FormBorderStyle = FormBorderStyle.Sizable;
         form.MinimizeBox = true;
         form.MaximizeBox = true;
+        form.ControlBox = true;
         form.ShowInTaskbar = false;
         form.FormClosed += ChildClosed;
 
         var childCount = MdiChildren.Length;
-        if (childCount == 0)
-        {
-            form.WindowState = FormWindowState.Maximized;
-        }
-        else
-        {
-            form.WindowState = FormWindowState.Normal;
-            var offset = Math.Min(childCount, 5) * 24;
-            form.Size = new Size(Math.Max(900, _mdiClient?.ClientSize.Width - 40 ?? 1000),
-                                 Math.Max(620, _mdiClient?.ClientSize.Height - 70 ?? 650));
-            form.Location = new Point(30 + offset, 25 + offset);
-        }
+        var clientWidth = _mdiClient?.ClientSize.Width ?? 1100;
+        var clientHeight = _mdiClient?.ClientSize.Height ?? 700;
+
+        form.WindowState = FormWindowState.Normal;
+        form.Size = new Size(
+            Math.Max(900, Math.Min(clientWidth - 40, 1060)),
+            Math.Max(620, Math.Min(clientHeight - 40, 650)));
+
+        var offset = Math.Min(childCount, 5) * 24;
+        form.Location = new Point(20 + offset, 20 + offset);
 
         form.Show();
-        form.BringToFront();
+        form.Activate();
         RefreshWindowMenu();
         return form;
     }
@@ -280,9 +277,6 @@ public sealed class WorkspaceShellForm : Form
 
     private void RefreshWindowMenu()
     {
-        if (_windowMenu == null)
-            return;
-
         _windowMenu.DropDownItems.Clear();
 
         var desktop = new ToolStripMenuItem("عرض البرنامج")
@@ -292,8 +286,8 @@ public sealed class WorkspaceShellForm : Form
         };
         desktop.Click += (_, _) =>
         {
-            ActiveControl = _mdiClient;
             _mdiClient?.Focus();
+            Activate();
         };
         _windowMenu.DropDownItems.Add(desktop);
 
@@ -317,11 +311,11 @@ public sealed class WorkspaceShellForm : Form
             {
                 if (item.Tag is Form target && !target.IsDisposed)
                 {
-                    target.WindowState = target.WindowState == FormWindowState.Minimized
-                        ? FormWindowState.Normal
-                        : target.WindowState;
+                    if (target.WindowState == FormWindowState.Minimized)
+                        target.WindowState = FormWindowState.Normal;
                     target.Activate();
                     target.BringToFront();
+                    RefreshWindowMenu();
                 }
             };
             _windowMenu.DropDownItems.Add(item);
@@ -331,11 +325,7 @@ public sealed class WorkspaceShellForm : Form
     private void ShowWorkspace()
     {
         _mdiClient?.Focus();
-        if (ActiveMdiChild != null)
-            ActiveMdiChild.Hide();
-        foreach (var child in MdiChildren)
-            if (!child.IsDisposed)
-                child.Show();
+        Activate();
     }
 
     private static ToolStripMenuItem CreateMenu(string text, params ToolStripItem[] children)
