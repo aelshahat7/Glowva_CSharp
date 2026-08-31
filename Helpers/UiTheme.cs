@@ -21,6 +21,7 @@ public static class UiTheme
     public static readonly Color ChromeGold = Color.FromArgb(255, 204, 74);
     public static readonly Color PrimaryAction = Color.FromArgb(35, 126, 61);
     public static readonly Color SecondaryAction = Color.FromArgb(45, 121, 185);
+    public static readonly Color WarningAction = Color.FromArgb(230, 126, 34);
     public static readonly Color DangerAction = Color.FromArgb(192, 57, 43);
     public const int InputHeight = 32;
     public const int ButtonHeight = 36;
@@ -37,7 +38,6 @@ public static class UiTheme
         {
             if (InstalledForms.Contains(form))
                 continue;
-
             InstalledForms.Add(form);
             ApplyToForm(form);
         }
@@ -48,7 +48,6 @@ public static class UiTheme
         form.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
         form.BackColor = Page;
         form.ForeColor = Text;
-
         Wire(form);
         ApplyTree(form);
     }
@@ -80,20 +79,17 @@ public static class UiTheme
     {
         if (control is Form)
             return;
-
         if (control is MenuStrip menu)
         {
             menu.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             menu.Padding = new Padding(8, 3, 8, 3);
             return;
         }
-
         if (control is StatusStrip status)
         {
             status.Font = new Font("Segoe UI", 8.5F);
             return;
         }
-
         if (control is DataGridView grid)
         {
             grid.BackgroundColor = Surface;
@@ -113,11 +109,8 @@ public static class UiTheme
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 9F);
             grid.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(250, 251, 252);
             grid.RowTemplate.Height = Math.Max(grid.RowTemplate.Height, 30);
-            // Column sizing belongs to the form: invoice grids and report grids have
-            // fundamentally different density requirements.
             return;
         }
-
         if (control is Button button)
         {
             button.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
@@ -128,7 +121,6 @@ public static class UiTheme
             button.Cursor = Cursors.Hand;
             return;
         }
-
         if (control is TextBox textBox)
         {
             textBox.BackColor = Surface;
@@ -138,7 +130,6 @@ public static class UiTheme
             textBox.TextAlign = HorizontalAlignment.Right;
             return;
         }
-
         if (control is ComboBox combo)
         {
             combo.BackColor = Surface;
@@ -147,7 +138,6 @@ public static class UiTheme
             combo.FlatStyle = FlatStyle.Standard;
             return;
         }
-
         if (control is NumericUpDown numeric)
         {
             numeric.BackColor = Surface;
@@ -156,14 +146,12 @@ public static class UiTheme
             numeric.TextAlign = HorizontalAlignment.Right;
             return;
         }
-
         if (control is CheckBox check)
         {
             check.Font = new Font("Segoe UI", 9.5F);
             check.ForeColor = Text;
             return;
         }
-
         if (control is Label label)
         {
             if (label.Font.Size < 10F)
@@ -172,7 +160,6 @@ public static class UiTheme
                 label.ForeColor = Muted;
             return;
         }
-
         if (control is Panel or TableLayoutPanel or FlowLayoutPanel)
         {
             if (control.BackColor == SystemColors.Control || control.BackColor == Color.White)
@@ -208,7 +195,6 @@ public static class UiTheme
         control.BackColor = Surface;
         control.ForeColor = Text;
         control.Font = new Font("Segoe UI", 9F);
-
         switch (control)
         {
             case TextBox textBox:
