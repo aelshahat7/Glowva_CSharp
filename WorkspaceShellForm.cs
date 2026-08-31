@@ -251,17 +251,14 @@ public sealed class WorkspaceShellForm : Form
         form.ShowInTaskbar = false;
         form.FormClosed += ChildClosed;
 
-        var childCount = MdiChildren.Length;
         var clientWidth = _mdiClient?.ClientSize.Width ?? 1100;
         var clientHeight = _mdiClient?.ClientSize.Height ?? 700;
 
-        form.WindowState = FormWindowState.Normal;
+        // New child windows should open maximized inside the MDI workspace.
+        form.WindowState = FormWindowState.Maximized;
         form.Size = new Size(
-            Math.Max(900, Math.Min(clientWidth - 40, 1060)),
-            Math.Max(620, Math.Min(clientHeight - 40, 650)));
-
-        var offset = Math.Min(childCount, 5) * 24;
-        form.Location = new Point(20 + offset, 20 + offset);
+            Math.Max(900, Math.Min(clientWidth, 1200)),
+            Math.Max(620, Math.Min(clientHeight, 800)));
 
         form.Show();
         form.Activate();
