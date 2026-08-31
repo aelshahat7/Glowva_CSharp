@@ -16,9 +16,10 @@ internal static class Program
         UiRtl.InstallGlobal();
         UiTheme.InstallGlobal();
         ContextualSearchShortcuts.InstallGlobal();
-        SalesDirectCodeEntry.InstallGlobal();
         Database.Initialize();
         SchemaUpgradeService.Apply();
+
+        SalesDirectCodeEntry.InstallGlobal();
 
         using (var login = new LoginForm())
         {
