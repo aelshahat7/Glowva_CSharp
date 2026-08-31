@@ -48,7 +48,6 @@ public sealed class WorkspaceShellForm : Form
         if (_mdiClient != null)
         {
             _mdiClient.BackColor = Color.White;
-            _mdiClient.BorderStyle = BorderStyle.None;
             _mdiClient.SizeChanged += (_, _) => LayoutMdiClient();
             _mdiClient.ControlAdded += (_, _) => RefreshWindowMenu();
             _mdiClient.ControlRemoved += (_, _) => RefreshWindowMenu();
@@ -84,8 +83,7 @@ public sealed class WorkspaceShellForm : Form
             ForeColor = Color.Black,
             Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
             Padding = new Padding(8, 2, 8, 2),
-            RightToLeft = RightToLeft.Yes,
-            Renderer = new ShellMenuRenderer()
+            RightToLeft = RightToLeft.Yes
         };
 
         menu.Items.Add(CreateMenu("البيانات العامة",
@@ -200,7 +198,7 @@ public sealed class WorkspaceShellForm : Form
                 items[index].Item3();
             };
             buttons[index] = button;
-            host.Controls.Add(button, 0, index);
+            host.Controls.Add(button, 0, i);
         }
 
         panel.Controls.Add(host);
