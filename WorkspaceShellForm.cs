@@ -86,8 +86,9 @@ public sealed class WorkspaceShellForm : Form
             RightToLeft = RightToLeft.Yes
         };
 
-        // With RTL enabled, the first logical item is displayed at the far left.
-        // Keep the Window menu as the final visible menu item, matching the reference UI.
+        // In RTL, the first logical item is shown at the far-left side.
+        // Put the Window menu first so it appears as the last visible menu item,
+        // matching the reference application.
         menu.Items.Add(windowMenu);
 
         menu.Items.Add(CreateMenu("البيانات العامة",
@@ -115,7 +116,7 @@ public sealed class WorkspaceShellForm : Form
 
         menu.Items.Add(CreateMenu("المبيعات",
             Item("فاتورة بيع", (_, _) => OpenChild(() => new SalesForm(), "المبيعات")),
-            Item("استدعاء فاتورة", (_, _) => OpenChild(() => new InvoiceSearchDialog(), "استدعاء فاتورة")),
+            Item("استدعاء فاتورة", (_, _) => OpenChild(() => new InvoiceSearchForm(true), "استدعاء فاتورة")),
             Item("مرتجعات المبيعات", (_, _) => OpenChild(() => new SalesReturnsForm(), "مرتجعات المبيعات")),
             new ToolStripSeparator(),
             Item("تقرير المبيعات", (_, _) => OpenChild(() => new SalesReportForm(), "تقرير المبيعات"))));
@@ -251,14 +252,8 @@ public sealed class WorkspaceShellForm : Form
         form.ShowInTaskbar = false;
         form.FormClosed += ChildClosed;
 
-        var clientWidth = _mdiClient?.ClientSize.Width ?? 1100;
-        var clientHeight = _mdiClient?.ClientSize.Height ?? 700;
-
-        // New child windows should open maximized inside the MDI workspace.
+        // All application screens open maximized inside the MDI workspace.
         form.WindowState = FormWindowState.Maximized;
-        form.Size = new Size(
-            Math.Max(900, Math.Min(clientWidth, 1200)),
-            Math.Max(620, Math.Min(clientHeight, 800)));
 
         form.Show();
         form.Activate();
@@ -310,7 +305,7 @@ public sealed class WorkspaceShellForm : Form
                 if (item.Tag is Form target && !target.IsDisposed)
                 {
                     if (target.WindowState == FormWindowState.Minimized)
-                        target.WindowState = FormWindowState.Normal;
+                        target.WindowState = FormWindowState.Maximized;
                     target.Activate();
                     target.BringToFront();
                     RefreshWindowMenu();
