@@ -86,6 +86,10 @@ public sealed class WorkspaceShellForm : Form
             RightToLeft = RightToLeft.Yes
         };
 
+        // With RTL enabled, the first logical item is displayed at the far left.
+        // Keep the Window menu as the final visible menu item, matching the reference UI.
+        menu.Items.Add(windowMenu);
+
         menu.Items.Add(CreateMenu("البيانات العامة",
             Item("الترحيب", (_, _) => ShowWorkspace()),
             Item("خروج", (_, _) => Close())));
@@ -111,7 +115,7 @@ public sealed class WorkspaceShellForm : Form
 
         menu.Items.Add(CreateMenu("المبيعات",
             Item("فاتورة بيع", (_, _) => OpenChild(() => new SalesForm(), "المبيعات")),
-            Item("استدعاء فاتورة", (_, _) => OpenChild(() => new InvoiceSearchForm(true), "استدعاء فاتورة")),
+            Item("استدعاء فاتورة", (_, _) => OpenChild(() => new InvoiceSearchDialog(), "استدعاء فاتورة")),
             Item("مرتجعات المبيعات", (_, _) => OpenChild(() => new SalesReturnsForm(), "مرتجعات المبيعات")),
             new ToolStripSeparator(),
             Item("تقرير المبيعات", (_, _) => OpenChild(() => new SalesReportForm(), "تقرير المبيعات"))));
@@ -129,7 +133,6 @@ public sealed class WorkspaceShellForm : Form
         menu.Items.Add(CreateMenu("شئون العاملين",
             Item("شئون العاملين", (_, _) => ShowInfo("قسم شئون العاملين"))));
 
-        menu.Items.Add(windowMenu);
         return menu;
     }
 
