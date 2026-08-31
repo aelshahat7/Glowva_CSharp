@@ -94,20 +94,13 @@ public sealed class WorkspaceShellForm : Form
         menu.Items.Add(CreateMenu("الإيصالات", Item("المصروفات", (_, _) => OpenChild(() => new ExpensesForm(), "المصروفات"))));
         menu.Items.Add(CreateMenu("الأطباء", Item("الأطباء", (_, _) => ShowInfo("قسم الأطباء"))));
         menu.Items.Add(CreateMenu("شئون العاملين", Item("شئون العاملين", (_, _) => ShowInfo("قسم شئون العاملين"))));
-
-        // RTL MenuStrip renders the first logical item on the far left. Put "إطار" last
-        // so it is the last visual top-level menu item on the far left, as requested.
         menu.Items.Add(windowMenu);
         return menu;
     }
 
     private Panel BuildRightRail(out Button[] buttons)
     {
-        var panel = new Panel
-        {
-            Dock = DockStyle.None, Width = 64, BackColor = UiTheme.ChromeGold,
-            Padding = new Padding(2, 0, 2, 0), Margin = Padding.Empty, RightToLeft = RightToLeft.Yes
-        };
+        var panel = new Panel { Dock = DockStyle.None, Width = 64, BackColor = UiTheme.ChromeGold, Padding = new Padding(2, 0, 2, 0), Margin = Padding.Empty, RightToLeft = RightToLeft.Yes };
         var items = new[]
         {
             ("الأصناف", "💊", (Action)(() => OpenChild(() => new ProductsForm(), "الأصناف"))),
@@ -116,23 +109,13 @@ public sealed class WorkspaceShellForm : Form
             ("المبيعات", "🛒", (Action)(() => OpenChild(() => new SalesForm(), "المبيعات"))),
             ("العملاء", "👥", (Action)(() => OpenChild(() => new PartyListForm(false), "العملاء")))
         };
-        var host = new TableLayoutPanel
-        {
-            Dock = DockStyle.Fill, ColumnCount = 1, RowCount = items.Length,
-            Margin = Padding.Empty, Padding = Padding.Empty, BackColor = UiTheme.ChromeGold, RightToLeft = RightToLeft.Yes
-        };
+        var host = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = items.Length, Margin = Padding.Empty, Padding = Padding.Empty, BackColor = UiTheme.ChromeGold, RightToLeft = RightToLeft.Yes };
         for (var i = 0; i < items.Length; i++) host.RowStyles.Add(new RowStyle(SizeType.Percent, 100F / items.Length));
         buttons = new Button[items.Length];
         for (var i = 0; i < items.Length; i++)
         {
             var index = i;
-            var button = new Button
-            {
-                Name = $"ModuleButton{index}", Text = $"{items[i].Item2}\r\n{items[i].Item1}", Dock = DockStyle.Fill,
-                Margin = new Padding(0, 1, 0, 1), FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 8F, FontStyle.Bold),
-                BackColor = ModuleColors[index], ForeColor = Color.White, TextAlign = ContentAlignment.MiddleCenter,
-                UseVisualStyleBackColor = false, RightToLeft = RightToLeft.Yes, TabStop = false, Cursor = Cursors.Hand
-            };
+            var button = new Button { Name = $"ModuleButton{index}", Text = $"{items[i].Item2}\r\n{items[i].Item1}", Dock = DockStyle.Fill, Margin = new Padding(0, 1, 0, 1), FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI", 8F, FontStyle.Bold), BackColor = ModuleColors[index], ForeColor = Color.White, TextAlign = ContentAlignment.MiddleCenter, UseVisualStyleBackColor = false, RightToLeft = RightToLeft.Yes, TabStop = false, Cursor = Cursors.Hand };
             button.FlatAppearance.BorderSize = 0;
             button.FlatAppearance.MouseOverBackColor = ModuleColors[index];
             button.FlatAppearance.MouseDownBackColor = ModuleColors[index];
@@ -183,6 +166,8 @@ public sealed class WorkspaceShellForm : Form
         form.MaximizeBox = true;
         form.ControlBox = true;
         form.ShowInTaskbar = false;
+        form.RightToLeft = RightToLeft.Yes;
+        form.RightToLeftLayout = true;
         form.FormClosed += ChildClosed;
         form.WindowState = FormWindowState.Maximized;
         form.Show();
@@ -209,13 +194,7 @@ public sealed class WorkspaceShellForm : Form
         for (var i = 0; i < children.Length; i++)
         {
             var child = children[i];
-            var item = new ToolStripMenuItem($"{i + 1} {child.Text}")
-            {
-                RightToLeft = RightToLeft.Yes,
-                CheckOnClick = false,
-                Checked = ReferenceEquals(child, ActiveMdiChild),
-                Tag = child
-            };
+            var item = new ToolStripMenuItem($"{i + 1} {child.Text}") { RightToLeft = RightToLeft.Yes, CheckOnClick = false, Checked = ReferenceEquals(child, ActiveMdiChild), Tag = child };
             item.Click += (_, _) =>
             {
                 if (item.Tag is Form target && !target.IsDisposed)
