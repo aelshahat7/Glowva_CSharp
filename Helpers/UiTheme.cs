@@ -50,6 +50,7 @@ public static class UiTheme
         form.ForeColor = Text;
         Wire(form);
         ApplyTree(form);
+        LegacyReferenceUi.Apply(form);
     }
 
     private static void Wire(Control root)
@@ -135,7 +136,7 @@ public static class UiTheme
             combo.BackColor = Surface;
             combo.ForeColor = Text;
             combo.Font = new Font("Segoe UI", 9.5F);
-            combo.FlatStyle = FlatStyle.Standard;
+            combo.FlatStyle = ComboBoxStyle.Standard;
             return;
         }
         if (control is NumericUpDown numeric)
@@ -202,7 +203,7 @@ public static class UiTheme
                 textBox.TextAlign = HorizontalAlignment.Right;
                 break;
             case ComboBox combo:
-                combo.FlatStyle = FlatStyle.Standard;
+                combo.FlatStyle = ComboBoxStyle.Standard;
                 break;
             case NumericUpDown numeric:
                 numeric.TextAlign = HorizontalAlignment.Right;
