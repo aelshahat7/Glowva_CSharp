@@ -136,7 +136,7 @@ public static class UiTheme
             combo.BackColor = Surface;
             combo.ForeColor = Text;
             combo.Font = new Font("Segoe UI", 9.5F);
-            combo.FlatStyle = ComboBoxStyle.Standard;
+            combo.FlatStyle = FlatStyle.Standard;
             return;
         }
         if (control is NumericUpDown numeric)
@@ -203,7 +203,7 @@ public static class UiTheme
                 textBox.TextAlign = HorizontalAlignment.Right;
                 break;
             case ComboBox combo:
-                combo.FlatStyle = ComboBoxStyle.Standard;
+                combo.FlatStyle = FlatStyle.Standard;
                 break;
             case NumericUpDown numeric:
                 numeric.TextAlign = HorizontalAlignment.Right;
