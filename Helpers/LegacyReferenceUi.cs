@@ -392,4 +392,14 @@ public static class LegacyReferenceUi
             total.TextAlign = ContentAlignment.MiddleRight;
         }
     }
+
+    private static void ShowPlaceholder(Form owner, string featureName)
+    {
+        MessageBox.Show(
+            owner,
+            $"وظيفة \"{featureName}\" سيتم تنفيذها لاحقًا.",
+            "Glowva ERP",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information);
+    }
 }
