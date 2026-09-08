@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Reflection;
 using System.Windows.Forms;
 using GlowvaERP.Forms;
 
@@ -8,17 +8,17 @@ namespace GlowvaERP.Helpers;
 
 internal static class ReferenceWindowMenuBridge
 {
-    private static readonly IReadOnlyDictionary<string, Func<Form>> Windows = new Dictionary<string, Func<Form>>(StringComparer.Ordinal)
+    private static readonly IReadOnlyDictionary<string, string> WindowTypes = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-        ["بيانات المؤسسة"] = () => new OrganizationDataForm(),
-        ["إعدادات التشغيل"] = () => new OperatingSettingsForm(),
-        ["إعدادات طباعة فاتورة البيع"] = () => new SalesInvoicePrintSettingsForm(),
-        ["إعدادات طباعة الباركود"] = () => new BarcodePrintSettingsForm(),
-        ["أخذ نسخة احتياطية"] = () => new BackupForm(),
-        ["نسخ احتياطية دورية"] = () => new ScheduledBackupForm(),
-        ["حجم قاعدة البيانات"] = () => new DatabaseSizeForm(),
-        ["طباعة باركود"] = () => new BarcodePrintForm(),
-        ["إصدار فاتورة ورقية للتعاقد"] = () => new ContractInvoiceForm()
+        ["بيانات المؤسسة"] = "OrganizationDataForm",
+        ["إعدادات التشغيل"] = "OperatingSettingsForm",
+        ["إعدادات طباعة فاتورة البيع"] = "SalesInvoicePrintSettingsForm",
+        ["إعدادات طباعة الباركود"] = "BarcodePrintSettingsForm",
+        ["أخذ نسخة احتياطية"] = "BackupForm",
+        ["نسخ احتياطية دورية"] = "ScheduledBackupForm",
+        ["حجم قاعدة البيانات"] = "DatabaseSizeForm",
+        ["طباعة باركود"] = "BarcodePrintForm",
+        ["إصدار فاتورة ورقية للتعاقد"] = "ContractInvoiceForm"
     };
 
     public static void Install(WorkspaceShellForm shell)
@@ -43,7 +43,7 @@ internal static class ReferenceWindowMenuBridge
                 continue;
             }
 
-            if (!Windows.TryGetValue(item.Text, out var factory))
+            if (!WindowTypes.TryGetValue(item.Text, out var typeName))
                 continue;
 
             var replacement = new ToolStripMenuItem(item.Text)
@@ -61,15 +61,41 @@ internal static class ReferenceWindowMenuBridge
                 ForeColor = item.ForeColor
             };
 
-            replacement.Click += (_, _) =>
-            {
-                var form = factory();
-                form.Show(shell);
-                form.Activate();
-            };
+            replacement.Click += (_, _) => OpenReferenceWindow(shell, typeName, item.Text);
 
             items.RemoveAt(index);
             items.Insert(index, replacement);
+        }
+    }
+
+    private static void OpenReferenceWindow(WorkspaceShellForm shell, string typeName, string title)
+    {
+        var type = typeof(ReferenceWindowMenuBridge).Assembly.GetType($"GlowvaERP.Forms.{typeName}");
+        if (type == null || !typeof(Form).IsAssignableFrom(type))
+        {
+            MessageBox.Show(shell, $"النافذة المرجعية \"{title}\" غير متاحة حاليًا.", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            var form = Activator.CreateInstance(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, null, null) as Form;
+            if (form == null)
+            {
+                MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            form.Show(shell);
+            form.Activate();
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException != null)
+        {
+            MessageBox.Show(shell, $"تعذر فتح \"{title}\":\n{ex.InnerException.Message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(shell, $"تعذر فتح \"{title}\":\n{ex.Message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
