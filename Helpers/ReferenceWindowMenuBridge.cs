@@ -82,10 +82,11 @@ internal static class ReferenceWindowMenuBridge
             var form = Activator.CreateInstance(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, null, null) as Form;
             if (form == null)
             {
-                MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
+            ReferenceWindowRuntimeFix.Apply(form);
             form.Show(shell);
             form.Activate();
         }
