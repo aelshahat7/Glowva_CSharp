@@ -10,22 +10,21 @@ internal static class ReferenceWindowMenuBridge
 {
     private static readonly IReadOnlyDictionary<string, string> WindowTypes = new Dictionary<string, string>(StringComparer.Ordinal)
     {
-        ["بيانات المؤسسة"] = "OrganizationDataForm",
-        ["إعدادات التشغيل"] = "OperatingSettingsForm",
-        ["إعدادات طباعة فاتورة البيع"] = "SalesInvoicePrintSettingsForm",
-        ["إعدادات طباعة الباركود"] = "BarcodePrintSettingsForm",
-        ["أخذ نسخة احتياطية"] = "BackupForm",
-        ["نسخ احتياطية دورية"] = "ScheduledBackupForm",
-        ["حجم قاعدة البيانات"] = "DatabaseSizeForm",
-        ["طباعة باركود"] = "BarcodePrintForm",
-        ["إصدار فاتورة ورقية للتعاقد"] = "ContractInvoiceForm"
+        ["بيانات المؤسسة"] = "OrganizationDataV2Form",
+        ["إعدادات التشغيل"] = "OperatingSettingsV2Form",
+        ["إعدادات طباعة فاتورة البيع"] = "SalesInvoicePrintSettingsV2Form",
+        ["إعدادات طباعة الباركود"] = "BarcodePrintSettingsV2Form",
+        ["أخذ نسخة احتياطية"] = "BackupV2Form",
+        ["نسخ احتياطية دورية"] = "ScheduledBackupV2Form",
+        ["حجم قاعدة البيانات"] = "DatabaseSizeV2Form",
+        ["طباعة باركود"] = "BarcodePrintV2Form",
+        ["إصدار فاتورة ورقية للتعاقد"] = "ContractInvoiceV2Form"
     };
 
     public static void Install(WorkspaceShellForm shell)
     {
         var menu = shell.MainMenuStrip;
-        if (menu == null)
-            return;
+        if (menu == null) return;
         Wire(menu.Items, shell);
     }
 
@@ -33,15 +32,13 @@ internal static class ReferenceWindowMenuBridge
     {
         for (var index = items.Count - 1; index >= 0; index--)
         {
-            if (items[index] is not ToolStripMenuItem item)
-                continue;
+            if (items[index] is not ToolStripMenuItem item) continue;
             if (item.DropDownItems.Count > 0)
             {
                 Wire(item.DropDownItems, shell);
                 continue;
             }
-            if (!WindowTypes.TryGetValue(item.Text, out var typeName))
-                continue;
+            if (!WindowTypes.TryGetValue(item.Text, out var typeName)) continue;
 
             var replacement = new ToolStripMenuItem(item.Text)
             {
