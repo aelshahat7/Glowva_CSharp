@@ -32,11 +32,9 @@ internal static class Program
         RemainingFeatureMenuInstaller.Install(shell);
         InstallNewMenus(shell);
 
-        // Rebuild the menu from the supplied legacy-reference screenshots after
-        // existing installers have registered their features. This intentionally
-        // gives the reference menu structure final ownership without removing the
-        // existing business logic behind the application.
+        // The supplied legacy-reference menu screenshots are the visual source of truth.
         ReferenceMenuInstaller.Install(shell);
+        ReferenceWindowMenuBridge.Install(shell);
 
         Application.Run(shell);
     }
