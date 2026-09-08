@@ -26,7 +26,6 @@ internal static class ReferenceWindowMenuBridge
         var menu = shell.MainMenuStrip;
         if (menu == null)
             return;
-
         Wire(menu.Items, shell);
     }
 
@@ -36,13 +35,11 @@ internal static class ReferenceWindowMenuBridge
         {
             if (items[index] is not ToolStripMenuItem item)
                 continue;
-
             if (item.DropDownItems.Count > 0)
             {
                 Wire(item.DropDownItems, shell);
                 continue;
             }
-
             if (!WindowTypes.TryGetValue(item.Text, out var typeName))
                 continue;
 
@@ -60,9 +57,7 @@ internal static class ReferenceWindowMenuBridge
                 BackColor = item.BackColor,
                 ForeColor = item.ForeColor
             };
-
             replacement.Click += (_, _) => OpenReferenceWindow(shell, typeName, item.Text);
-
             items.RemoveAt(index);
             items.Insert(index, replacement);
         }
@@ -82,10 +77,9 @@ internal static class ReferenceWindowMenuBridge
             var form = Activator.CreateInstance(type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, null, null) as Form;
             if (form == null)
             {
-                MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             ReferenceWindowRuntimeFix.Apply(form);
             form.Show(shell);
             form.Activate();
