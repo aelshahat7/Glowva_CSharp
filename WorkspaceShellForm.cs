@@ -28,7 +28,12 @@ public sealed class WorkspaceShellForm : Form
         MinimumSize = new Size(1200, 720);
         BackColor = Color.White;
         RightToLeft = RightToLeft.Yes;
-        RightToLeftLayout = true;
+
+        // Keep the native MDI desktop itself non-mirrored. Individual Arabic controls
+        // remain RTL, but mirroring the top-level MDI host causes maximized children
+        // to be positioned outside the visible client area on some Windows versions.
+        RightToLeftLayout = false;
+
         KeyPreview = true;
         IsMdiContainer = true;
         AutoScroll = false;
@@ -45,13 +50,19 @@ public sealed class WorkspaceShellForm : Form
         if (_mdiClient != null)
         {
             _mdiClient.BackColor = Color.White;
-            _mdiClient.SizeChanged += (_, _) => LayoutMdiClient();
+            _mdiClient.RightToLeft = RightToLeft.No;
+            _mdiClient.SizeChanged += (_, _) => RefreshWindowMenu();
             _mdiClient.ControlAdded += (_, _) => RefreshWindowMenu();
             _mdiClient.ControlRemoved += (_, _) => RefreshWindowMenu();
         }
 
         Resize += (_, _) => LayoutMdiClient();
-        MdiChildActivate += (_, _) => RefreshWindowMenu();
+        Shown += (_, _) => LayoutMdiClient();
+        MdiChildActivate += (_, _) =>
+        {
+            EnsureActiveChildFitsMdi();
+            RefreshWindowMenu();
+        };
         FormClosed += (_, _) =>
         {
             foreach (var child in MdiChildren)
@@ -131,14 +142,38 @@ public sealed class WorkspaceShellForm : Form
     private void LayoutMdiClient()
     {
         if (_mdiClient == null || _rightRail.IsDisposed) return;
+
         var top = MainMenuStrip?.Bottom ?? 0;
         var right = _rightRail.Width;
         var width = Math.Max(0, ClientSize.Width - right);
         var height = Math.Max(0, ClientSize.Height - top);
+
         _mdiClient.Dock = DockStyle.None;
         _mdiClient.SetBounds(0, top, width, height);
         _rightRail.SetBounds(width, top, right, height);
         _rightRail.BringToFront();
+
+        EnsureActiveChildFitsMdi();
+    }
+
+    private void EnsureActiveChildFitsMdi()
+    {
+        if (_mdiClient == null) return;
+
+        var child = ActiveMdiChild;
+        if (child == null || child.IsDisposed || !child.Visible) return;
+
+        if (child.WindowState == FormWindowState.Maximized)
+        {
+            // Re-assert maximize only after the MDI client has its final bounds.
+            // This prevents RTL mirroring from leaving the child off-screen/blank.
+            child.SuspendLayout();
+            child.WindowState = FormWindowState.Normal;
+            child.Bounds = new Rectangle(0, 0, Math.Max(1, _mdiClient.ClientSize.Width), Math.Max(1, _mdiClient.ClientSize.Height));
+            child.WindowState = FormWindowState.Maximized;
+            child.ResumeLayout(true);
+            child.BringToFront();
+        }
     }
 
     private void SelectModule(int index)
@@ -167,11 +202,27 @@ public sealed class WorkspaceShellForm : Form
         form.ControlBox = true;
         form.ShowInTaskbar = false;
         form.RightToLeft = RightToLeft.Yes;
-        form.RightToLeftLayout = true;
+
+        // Do not mirror the native MDI child window. RTL remains enabled inside
+        // the form content, while the Windows MDI host keeps stable coordinates.
+        form.RightToLeftLayout = false;
+
         form.FormClosed += ChildClosed;
-        form.WindowState = FormWindowState.Maximized;
         form.Show();
+        form.WindowState = FormWindowState.Maximized;
         form.Activate();
+        form.BringToFront();
+
+        BeginInvoke(new Action(() =>
+        {
+            LayoutMdiClient();
+            if (!form.IsDisposed)
+            {
+                form.WindowState = FormWindowState.Maximized;
+                form.BringToFront();
+            }
+        }));
+
         RefreshWindowMenu();
         return form;
     }
@@ -200,7 +251,10 @@ public sealed class WorkspaceShellForm : Form
                 if (item.Tag is Form target && !target.IsDisposed)
                 {
                     if (target.WindowState == FormWindowState.Minimized) target.WindowState = FormWindowState.Maximized;
-                    target.Activate(); target.BringToFront(); RefreshWindowMenu();
+                    target.Activate();
+                    target.BringToFront();
+                    EnsureActiveChildFitsMdi();
+                    RefreshWindowMenu();
                 }
             };
             _windowMenu.DropDownItems.Add(item);
@@ -243,6 +297,9 @@ public sealed class WorkspaceShellForm : Form
         var current = Array.IndexOf(children, ActiveMdiChild);
         if (current < 0) current = reverse ? 0 : children.Length - 1;
         var next = reverse ? (current - 1 + children.Length) % children.Length : (current + 1) % children.Length;
-        children[next].Activate(); children[next].BringToFront(); RefreshWindowMenu();
+        children[next].Activate();
+        children[next].BringToFront();
+        EnsureActiveChildFitsMdi();
+        RefreshWindowMenu();
     }
 }
