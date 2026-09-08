@@ -31,6 +31,13 @@ internal static class Program
         WorkspaceFeatureBootstrap.Install(shell);
         RemainingFeatureMenuInstaller.Install(shell);
         InstallNewMenus(shell);
+
+        // Rebuild the menu from the supplied legacy-reference screenshots after
+        // existing installers have registered their features. This intentionally
+        // gives the reference menu structure final ownership without removing the
+        // existing business logic behind the application.
+        ReferenceMenuInstaller.Install(shell);
+
         Application.Run(shell);
     }
 
