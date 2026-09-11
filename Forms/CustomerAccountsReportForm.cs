@@ -150,7 +150,6 @@ public sealed class CustomerAccountsReportForm : Form
 
     private void LoadCustomers()
     {
-        _loadingCustomers = true;
         try
         {
             var items = new List<CustomerChoice> { new(0, "كل العملاء") };
@@ -169,7 +168,6 @@ public sealed class CustomerAccountsReportForm : Form
         {
             MessageBox.Show(this, $"تعذر تحميل العملاء:\n{ex.Message}", "كشف حساب العملاء", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-        finally { _loadingCustomers = false; }
     }
 
     private void LoadStatement()

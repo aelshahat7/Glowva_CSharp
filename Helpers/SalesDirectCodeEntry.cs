@@ -260,7 +260,7 @@ public static class SalesDirectCodeEntry
         return items is not null && rowIndex >= 0 && rowIndex < items.Count && IsPendingDraft(items[rowIndex]);
     }
 
-    private static bool IsPendingDraft(object value)
+    private static bool IsPendingDraft(object? value)
         => GetLongProperty(value, "ProductId") == 0;
 
     private static int FindExistingProduct(IList items, long productId, int excludedIndex)
@@ -279,15 +279,17 @@ public static class SalesDirectCodeEntry
     private static decimal GetQuantityValue(SalesForm form)
         => QuantityField?.GetValue(form) is NumericUpDown numeric ? numeric.Value : 1m;
 
-    private static long GetLongProperty(object target, string name)
+    private static long GetLongProperty(object? target, string name)
     {
+        if (target is null) return 0L;
         var property = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
         var value = property?.GetValue(target);
         return value is null ? 0L : Convert.ToInt64(value);
     }
 
-    private static decimal GetDecimalProperty(object target, string name)
+    private static decimal GetDecimalProperty(object? target, string name)
     {
+        if (target is null) return 0m;
         var property = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
         var value = property?.GetValue(target);
         return value is null ? 0m : Convert.ToDecimal(value);
@@ -296,8 +298,9 @@ public static class SalesDirectCodeEntry
     private static void SetDecimalProperty(object target, string name, decimal value)
         => SetProperty(target, name, value);
 
-    private static void SetProperty(object target, string name, object value)
+    private static void SetProperty(object? target, string name, object value)
     {
+        if (target is null) return;
         var property = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
         property?.SetValue(target, Convert.ChangeType(value, property.PropertyType));
     }

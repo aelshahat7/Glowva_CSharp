@@ -176,7 +176,7 @@ internal static class RefV2
         => service.Get(key, fallback) ?? fallback;
 }
 
-internal abstract class ReferenceV2Base : Form
+public abstract class ReferenceV2Base : Form
 {
     protected readonly AppSettingsService Settings = new();
 
@@ -191,7 +191,7 @@ internal abstract class ReferenceV2Base : Form
 
     protected virtual void DisposeChildResources() { }
 
-    protected static Label Pair(Panel panel, string text, Control control, int x, int y, int controlWidth = 270)
+    protected static Label Pair(Control panel, string text, Control control, int x, int y, int controlWidth = 270)
     {
         control.SetBounds(x, y, controlWidth, control.Height);
         panel.Controls.Add(control);
