@@ -38,9 +38,11 @@ internal static class ReferenceWindowMenuBridge
                 Wire(item.DropDownItems, shell);
                 continue;
             }
-            if (!WindowTypes.TryGetValue(item.Text, out var typeName)) continue;
 
-            var replacement = new ToolStripMenuItem(item.Text)
+            var menuText = item.Text ?? string.Empty;
+            if (!WindowTypes.TryGetValue(menuText, out var typeName)) continue;
+
+            var replacement = new ToolStripMenuItem(menuText)
             {
                 RightToLeft = item.RightToLeft,
                 Font = item.Font,
@@ -54,7 +56,7 @@ internal static class ReferenceWindowMenuBridge
                 BackColor = item.BackColor,
                 ForeColor = item.ForeColor
             };
-            replacement.Click += (_, _) => OpenReferenceWindow(shell, typeName, item.Text);
+            replacement.Click += (_, _) => OpenReferenceWindow(shell, typeName, menuText);
             items.RemoveAt(index);
             items.Insert(index, replacement);
         }
@@ -78,16 +80,28 @@ internal static class ReferenceWindowMenuBridge
                 return;
             }
             ReferenceWindowRuntimeFix.Apply(form);
-            form.Show(shell);
-            form.Activate();
+            form.ShowInTaskbar = false;
+            if (shell.IsMdiContainer)
+            {
+                form.StartPosition = FormStartPosition.Manual;
+                form.MdiParent = shell;
+                form.Show();
+                if (!ReferenceWindowRuntimeFix.PreferWindowSize(form))
+                    form.WindowState = FormWindowState.Maximized;
+            }
+            else
+            {
+                form.ShowDialog(shell);
+            }
         }
-        catch (TargetInvocationException ex) when (ex.InnerException != null)
+        catch (TargetInvocationException ex)
         {
-            MessageBox.Show(shell, $"تعذر فتح \"{title}\":\n{ex.InnerException.Message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            var message = ex.InnerException?.Message ?? ex.Message;
+            MessageBox.Show(shell, $"تعذر فتح النافذة \"{title}\":\n{message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(shell, $"تعذر فتح \"{title}\":\n{ex.Message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(shell, $"تعذر فتح النافذة \"{title}\":\n{ex.Message}", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
