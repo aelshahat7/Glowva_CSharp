@@ -12,7 +12,6 @@ public sealed class CustomerAccountsReportForm : Form
     private readonly Label _debitTotal = new();
     private readonly Label _creditTotal = new();
     private readonly Label _balance = new();
-    private bool _loadingCustomers;
 
     public CustomerAccountsReportForm()
     {

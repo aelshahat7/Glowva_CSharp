@@ -295,7 +295,7 @@ public static class SalesDirectCodeEntry
         return value is null ? 0m : Convert.ToDecimal(value);
     }
 
-    private static void SetDecimalProperty(object target, string name, decimal value)
+    private static void SetDecimalProperty(object? target, string name, decimal value)
         => SetProperty(target, name, value);
 
     private static void SetProperty(object? target, string name, object value)
