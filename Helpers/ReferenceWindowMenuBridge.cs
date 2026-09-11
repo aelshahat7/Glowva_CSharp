@@ -79,20 +79,11 @@ internal static class ReferenceWindowMenuBridge
                 MessageBox.Show(shell, $"تعذر إنشاء النافذة \"{title}\".", "Glowva ERP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
             ReferenceWindowRuntimeFix.Apply(form);
             form.ShowInTaskbar = false;
-            if (shell.IsMdiContainer)
-            {
-                form.StartPosition = FormStartPosition.Manual;
-                form.MdiParent = shell;
-                form.Show();
-                if (!ReferenceWindowRuntimeFix.PreferWindowSize(form))
-                    form.WindowState = FormWindowState.Maximized;
-            }
-            else
-            {
-                form.ShowDialog(shell);
-            }
+            form.StartPosition = FormStartPosition.CenterParent;
+            form.ShowDialog(shell);
         }
         catch (TargetInvocationException ex)
         {
